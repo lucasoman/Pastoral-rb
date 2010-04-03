@@ -1,0 +1,17 @@
+TO TEST
+
+
+TO CODE
+- !drop
+- !pickup
+- abbreviated dirns
+- API for stats
+
+
+TO FIX
+!give doesn't delete from givers inventory
+- "... ventures off toward the up."
+
+
+WISH LIST
+- private areas? keys?

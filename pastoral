@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+
+# prefix char for commands
+$cmdChar = '!'
+
+# loads and requires#{{{
+require 'rubygems'
+require 'socket'
+require 'mysql'
+load 'functions.rb'
+load 'framework.rb'
+load 'handler.rb'
+load 'pastoralserver.rb'
+load 'terminal.rb'
+load 'user.rb'
+load 'tcpsocket.rb'
+load 'cube.rb'
+load 'inventory.rb'
+load 'item.rb'
+load 'animal.rb'
+load 'animals/bird.rb'
+load 'animals/deer.rb'
+load 'animals/pigeon.rb'
+load 'animals/finch.rb'
+load 'synonyms.rb'
+#}}}
+$myDB = Mysql.real_connect("localhost", "root", "sthlkj12", "pastoral")
+$myServer = PastoralServer.new(1337)
+# animals#{{{
+3.times do
+  $myServer.addAnimal(Bird.new)
+  $myServer.addAnimal(Deer.new)
+end
+$myServer.addAnimal(Pigeon.new(0,-1,0))
+$myServer.addAnimal(Finch.new(0,-1,0))
+#}}}
+$myServer.go
