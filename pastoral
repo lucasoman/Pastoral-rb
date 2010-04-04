@@ -3,7 +3,7 @@
 # prefix char for commands
 $cmdChar = '!'
 
-# loads and requires#{{{
+# loads and requires
 require 'rubygems'
 require 'socket'
 require 'mysql'
@@ -23,15 +23,15 @@ load 'animals/deer.rb'
 load 'animals/pigeon.rb'
 load 'animals/finch.rb'
 load 'synonyms.rb'
-#}}}
+
 $myDB = Mysql.real_connect("localhost", "root", "sthlkj12", "pastoral")
 $myServer = PastoralServer.new(1337)
-# animals#{{{
+# animals
 3.times do
   $myServer.addAnimal(Bird.new)
   $myServer.addAnimal(Deer.new)
 end
 $myServer.addAnimal(Pigeon.new(0,-1,0))
 $myServer.addAnimal(Finch.new(0,-1,0))
-#}}}
+
 $myServer.go

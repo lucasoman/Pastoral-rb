@@ -15,7 +15,6 @@ class Handler < Framework
     elsif !%w{north south east west up down}.include?(@tokens[1])
       @sock.terminal.send "That may be the road less traveled by, but choosing a recognizable direction will make all the difference." if @sock.sockType == SockTypeUser
     else
-      @sock.terminal.clearScreen
       cube = @sock.user.cube.changeCube(@tokens[1])
       if cube.exists?
         broadcast @sock.user.name+" has ventured off toward the "+@tokens[1]+".", @sock, false

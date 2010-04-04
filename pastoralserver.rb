@@ -1,6 +1,6 @@
 class PastoralServer < Framework
 
-  public#{{{
+  public
 
   def initialize(port)#{{{
     @socket = TCPServer::new('127.0.0.1',port)
@@ -57,9 +57,8 @@ class PastoralServer < Framework
   def addAnimal(animal)#{{{
     @allAnimals.push animal
   end#}}}
-  #}}}
 
-  private#{{{
+  private
 
   def acceptConnection#{{{
     newSock = @socket.accept
@@ -72,10 +71,6 @@ class PastoralServer < Framework
   end#}}}
   def handle(str,sock)#{{{
     $stderr.puts sock.user.name+" ("+sock.user.cube.x.to_s+","+sock.user.cube.y.to_s+","+sock.user.cube.z.to_s+"): "+str+"\n"
-    if str.match('<C>$')
-      sock.terminal.rewriteScreen
-      return
-    end
     if str.match('^'+$cmdChar)
       sock.terminal.pushString(': '+str)
       tokens = str.sub($cmdChar,'').split(' ')
@@ -86,10 +81,8 @@ class PastoralServer < Framework
       sock.terminal.pushString("You say, \""+str+"\e[m\"")
       broadcast sock.user.name+" says, \""+str+"\e[m\"", sock, false
     end
-    sock.terminal.rewriteScreen unless str.match('^'+$cmdChar+'quit')
   end#}}}
   def welcomeMessage#{{{
     "\n\n\e[1mWelcome to my \"Pastoral Chat\" server.\e[0m\n\nThis software is still under serious development, so please excuse quirks, bugs, crashes, spontaneous combustion. If you encounter a weird bug, feel free to contact the developer (me@lucasoman.com). Questions, suggestions and praise can be directed there, as well. At any time, type !help for very sparse help info.\n"
   end#}}}
-  #}}}
 end
