@@ -4,7 +4,7 @@ class Bird < Animal
   end
 
   def shouldAct?
-    return (rand(20) == 0)
+    return (rand(40) == 0)
   end
 
   def getAction

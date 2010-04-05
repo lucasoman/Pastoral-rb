@@ -65,7 +65,7 @@ class PastoralServer < Framework
     newSock.sockType = SockTypeUser
     @allSocks.push newSock
     newSock.terminal.pushString welcomeMessage
-    newSock.terminal.pushString getLine
+    newSock.terminal.pushString Terminal.getLine
     newSock.terminal.send newSock.describeCube
     broadcast "A guest has joined us.",newSock, false
   end#}}}
@@ -75,11 +75,13 @@ class PastoralServer < Framework
       sock.terminal.pushString(': '+str)
       tokens = str.sub($cmdChar,'').split(' ')
       handler = Handler.new(sock,tokens,@allSocks)
-      eval('handler.'+tokens[0])
+			handler.send(tokens[0].to_sym)
     else
       str.chomp!
-      sock.terminal.pushString("You say, \""+str+"\e[m\"")
-      broadcast sock.user.name+" says, \""+str+"\e[m\"", sock, false
+			if str != ""
+				sock.terminal.pushString("You say, \""+str+"\e[m\"")
+				broadcast sock.user.name+" says, \""+str+"\e[m\"", sock, false
+			end
     end
   end#}}}
   def welcomeMessage#{{{

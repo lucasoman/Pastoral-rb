@@ -1,6 +1,6 @@
 class Cube < Framework
   attr_accessor :description, :gotos, :seetos, :distant_description, :x, :y, :z
-  public#{{{
+  public
 
   def initialize(x,y,z)#{{{
     @x = x
@@ -68,8 +68,15 @@ class Cube < Framework
   def exists?#{{{
     return @exists
   end#}}}
+	def goToDirn?(dirn)#{{{
+		coords = Direction.new(@x,@y,@z,dirn).toCoords
+		@gotos.each do |g|
+			return true if g['x'].to_i == coords[0].to_i && g['y'].to_i == coords[1].to_i && g['z'].to_i == coords[2].to_i
+		end
+		false
+	end#}}}
   def changeCube(dirn)#{{{
-    coords = dirnToCoords(@x,@y,@z,dirn)
+    coords = Direction.new(@x,@y,@z,dirn).toCoords
     Cube.new(coords[0],coords[1],coords[2])
   end#}}}
   def describeCube#{{{
@@ -98,12 +105,12 @@ class Cube < Framework
       newCube.distant_description = params['distant_description']
       if !params['seetos'].nil?
         params['seetos'].split(',').each do |s|
-          newCube.addSeeto dirnToCoords(x,y,z,s)
+          newCube.addSeeto Direction.new(x,y,z,s).toCoords
         end
       end
       if !params['gotos'].nil?
         params['gotos'].split(',').each do |g|
-          newCube.addGoto dirnToCoords(x,y,z,g)
+          newCube.addGoto Direction.new(x,y,z,g).toCoords
         end
       end
       newCube.save
@@ -171,15 +178,14 @@ class Cube < Framework
   def addSeeto(coords)#{{{
     @seetos.push({ 'x' => coords[0], 'y' => coords[1], 'z' => coords[2] })
   end#}}}
-#}}}
 
-  private#{{{
+  private
 
   def describeSeetos(animal=false)#{{{
     str = '' if !animal
     dirns = [] if animal
     @seetos.each do |s|
-      dirn = coordsToDirn(@x,@y,@z,s['x'],s['y'],s['z'])
+      dirn = Direction.fromCoords(@x,@y,@z,s['x'],s['y'],s['z']).toDirn
       str += "\e[1mYou can see "+dirn+":\e[m "+s['distant_description']+"\n" if !animal
       dirns.push(dirn) if animal
     end
@@ -189,7 +195,7 @@ class Cube < Framework
   def describeGotos(animal=false)#{{{
     dirns = []
     @gotos.each do |s|
-      dirns.push coordsToDirn(@x,@y,@z,s['x'],s['y'],s['z'])
+      dirns.push Direction.fromCoords(@x,@y,@z,s['x'],s['y'],s['z']).toDirn
     end
     return "\e[1mYou can go "+dirns.join(', ')+"\e[m" if !animal
     return dirns.join(',') if animal
@@ -211,5 +217,4 @@ class Cube < Framework
     return str if !animal
     return usrs.join(',') if animal
   end#}}}
-#}}}
 end

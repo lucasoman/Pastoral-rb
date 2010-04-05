@@ -4,7 +4,7 @@ class Finch < Animal
   end
 
   def shouldAct?
-    return (rand(40) == 0)
+    return (rand(80) == 0)
   end
 
   def getAction

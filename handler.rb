@@ -15,20 +15,25 @@ class Handler < Framework
     elsif !%w{north south east west up down}.include?(@tokens[1])
       @sock.terminal.send "That may be the road less traveled by, but choosing a recognizable direction will make all the difference." if @sock.sockType == SockTypeUser
     else
-      cube = @sock.user.cube.changeCube(@tokens[1])
-      if cube.exists?
-        broadcast @sock.user.name+" has ventured off toward the "+@tokens[1]+".", @sock, false
-        @sock.user.cube = cube
-        broadcast @sock.user.name+" has joined us from the "+oppositeDirn(@tokens[1])+".", @sock, false
-        @sock.terminal.send @sock.describeCube
-      else
-        @sock.terminal.send "You can't go that way." if @sock.sockType == SockTypeUser
-      end
+			if !@sock.user.cube.goToDirn?(@tokens[1])
+				@sock.terminal.send "You can't go that way." if @sock.sockType == SockTypeUser
+			else
+				cube = @sock.user.cube.changeCube(@tokens[1])
+				if cube.exists?
+					broadcast @sock.user.name+" has ventured off toward the "+@tokens[1]+".", @sock, false
+					@sock.user.cube = cube
+					broadcast @sock.user.name+" has joined us from the "+Direction.oppositeDirn(@tokens[1])+".", @sock, false
+					@sock.terminal.send Terminal.getLine
+					@sock.terminal.send @sock.describeCube
+				else
+					@sock.terminal.send "You can't go that way." if @sock.sockType == SockTypeUser
+				end
+			end
     end
   end#}}}
   def look#{{{
     broadcast @sock.user.name+" looks around.", @sock, false
-    @sock.terminal.pushString getLine if @sock.sockType == SockTypeUser
+    @sock.terminal.pushString Terminal.getLine if @sock.sockType == SockTypeUser
     @sock.terminal.send @sock.describeCube
   end#}}}
   def help#{{{
@@ -47,10 +52,10 @@ class Handler < Framework
       'quit',
       'yell <message>'
     ]
-    str = getLine
+    str = Terminal.getLine
     str += "Allowed commands:\n"+cmds.collect{|c| $cmdChar+c }.join("\n")
     str += "\nIf you're having trouble with backspace in your terminal, you can end any line with \"<C>\" (without quotes) and press <enter> to cancel that command."
-    str += getLine
+    str += Terminal.getLine
     @sock.terminal.send str
   end#}}}
   def name#{{{
@@ -101,6 +106,13 @@ class Handler < Framework
       end
     end
   end#}}}
+	def debug#{{{
+		if @sock.user.admin.to_i != 1
+			notCommand
+		else
+			@sock.terminal.send "Coords: "+@sock.user.cube.x.to_s+","+@sock.user.cube.y.to_s+","+@sock.user.cube.z.to_s
+		end
+	end#}}}
   def me#{{{
     @tokens.shift
     broadcast @sock.user.name+" "+@tokens.join(' '), @sock
@@ -110,8 +122,9 @@ class Handler < Framework
     str = @sock.user.name+" yells<dirn>, \""+@tokens.join(' ')+"\e[0m\""
     broadcast str.sub('<dirn>',''), @sock
     %w{ north south east west up down }.each do |d|
-      coords = dirnToCoords @sock.user.cube.x, @sock.user.cube.y, @sock.user.cube.z, d
-      d = oppositeDirn(d)
+      dirn = Direction.new(@sock.user.cube.x, @sock.user.cube.y, @sock.user.cube.z, d)
+      coords = dirn.toCoords
+      d = dirn.fromDirn
       dirnstr = " from "
       if d == "up"
         dirnstr += "above"
@@ -157,6 +170,10 @@ class Handler < Framework
   end#}}}
   def make#{{{
     @tokens.shift
+		if @tokens[0].nil?
+			@sock.terminal.send "You have to make *something*."
+			return
+		end
     params = {}
     temp = @tokens.join(' ').split(';')
     temp.each do |t|
@@ -201,14 +218,17 @@ class Handler < Framework
   def method_missing(method)#{{{
     synonym = findSynonym method
     return eval(synonym.to_s) unless synonym.nil?
-    sock.terminal.send 'Huh?' if @sock.sockType == SockTypeUser
+		notCommand
   end#}}}
 
 private
 
+	def notCommand#{{{
+    sock.terminal.send 'Huh?' if @sock.sockType == SockTypeUser
+	end#}}}
   def moveEarth(sock,dirn,params)#{{{
    if %w{ north south east west }.include?(dirn.downcase)
-     coords = dirnToCoords(sock.user.cube.x,sock.user.cube.y,sock.user.cube.z,dirn)
+     coords = Direction.new(sock.user.cube.x,sock.user.cube.y,sock.user.cube.z,dirn).toCoords
      paramstemp = params.split(';').collect{|p| p.split(':') }
      params = {}
      paramstemp.each do |p|
@@ -223,7 +243,7 @@ private
   end#}}}
   def moveWind(sock,dirn,params)#{{{
    if %w{ up down }.include?(dirn.downcase)
-     coords = dirnToCoords(sock.user.cube.x,sock.user.cube.y,sock.user.cube.z,dirn)
+     coords = Direction.new(sock.user.cube.x,sock.user.cube.y,sock.user.cube.z,dirn).toCoords
      paramstemp = params.split(';').collect{|p| p.split(':') }
      params = {}
      paramstemp.each do |p|
@@ -237,7 +257,7 @@ private
    end
   end#}}}
   def moveFire(sock,dirn)#{{{
-    coords = dirnToCoords(sock.user.cube.x,sock.user.cube.y,sock.user.cube.z,dirn)
+    coords = Direction.new(sock.user.cube.x,sock.user.cube.y,sock.user.cube.z,dirn).toCoords
     if Cube.raze(coords[0],coords[1],coords[2])
       broadcast sock.user.name+" shines his bright mind "+(%w{up down}.include?(dirn.downcase) ? "toward the " : '')+dirn+" and razes all to annihilation.", sock
     else

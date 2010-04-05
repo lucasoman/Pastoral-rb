@@ -30,4 +30,10 @@ class Terminal
     end
   end#}}}
 
+  def self.getLine#{{{
+    desc = "\n"
+    79.times { desc += "~" }
+    desc += "\n\n"
+    desc
+  end#}}}
 end

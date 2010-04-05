@@ -4,7 +4,7 @@ class Deer < Animal
   end
 
   def shouldAct?
-    return (rand(25) == 0)
+    return (rand(50) == 0)
   end
 
   def getAction

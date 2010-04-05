@@ -1,5 +1,5 @@
 class User < Framework
-  attr_accessor :cube, :name, :em, :fm, :wm, :sitting, :sitmsg, :inventory
+  attr_accessor :cube, :name, :em, :fm, :wm, :sitting, :sitmsg, :inventory, :admin
 
   def initialize(sock)#{{{
     @cube = Cube.new(0,0,0)
@@ -13,12 +13,13 @@ class User < Framework
     @sitmsg = ''
   end#}}}
   def identify(user,pass)#{{{
-    res = $myDB.query("select em,fm,wm from users where username='"+$myDB.escape_string(user)+"' and password=md5('"+$myDB.escape_string(pass)+"')")
+    res = $myDB.query("select em,fm,wm,admin from users where username='"+$myDB.escape_string(user)+"' and password=md5('"+$myDB.escape_string(pass)+"')")
     row = res.fetch_hash
     if row.nil?
       @sock.terminal.send "The world does not recognize you as "+user
       return false
     else
+			@admin = row['admin']
       @em = row['em']
       @fm = row['fm']
       @wm = row['wm']
