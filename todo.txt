@@ -9,8 +9,6 @@ TO CODE
 
 
 TO FIX
-!give doesn't delete from givers inventory
-- "... ventures off toward the up."
 
 
 WISH LIST

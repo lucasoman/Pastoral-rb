@@ -20,9 +20,17 @@ class Handler < Framework
 			else
 				cube = @sock.user.cube.changeCube(@tokens[1])
 				if cube.exists?
-					broadcast @sock.user.name+" has ventured off toward the "+@tokens[1]+".", @sock, false
+					case @tokens[1]
+						when 'north','south','east','west'
+							leaveBroadcastMsg = " has ventured off toward the "+@tokens[1]+"."
+							arriveBroadcastMsg = " has joined us from the "+Direction.oppositeDirn(@tokens[1])+"."
+						when 'up','down'
+							leaveBroadcastMsg = " has ventured "+@tokens[1]+"."
+							arriveBroadcastMsg = " has joined us from "+(@tokens[1] == "up" ? "below" : "above")
+					end
+					broadcast @sock.user.name+leaveBroadcastMsg, @sock, false
 					@sock.user.cube = cube
-					broadcast @sock.user.name+" has joined us from the "+Direction.oppositeDirn(@tokens[1])+".", @sock, false
+					broadcast @sock.user.name+arriveBroadcastMsg, @sock, false
 					@sock.terminal.send Terminal.getLine
 					@sock.terminal.send @sock.describeCube
 				else
