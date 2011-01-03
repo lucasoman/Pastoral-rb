@@ -2,8 +2,8 @@ class PastoralServer < Framework
 
   public
 
-  def initialize(port)#{{{
-    @socket = TCPServer::new('127.0.0.1',port)
+  def initialize(address,port)#{{{
+    @socket = TCPServer::new(address,port)
     @socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, 1)
     @socket.sockType = SockTypeServ
     @allSocks = []
@@ -38,7 +38,7 @@ class PastoralServer < Framework
       # check animals for actions
       @allAnimals.each do |a|
         str = a.go
-        handle str, a if !str.nil?
+        handle(str,a) unless str.nil?
       end
     end
   end#}}}
@@ -75,7 +75,13 @@ class PastoralServer < Framework
       sock.terminal.pushString(': '+str)
       tokens = str.sub($cmdChar,'').split(' ')
       handler = Handler.new(sock,tokens,@allSocks)
-			handler.send(tokens[0].to_sym)
+			begin
+				handler.send(tokens[0].to_sym)
+			rescue Exception=>msg
+				sock.terminal.send('Sorry, there was a problem executing that command.')
+				sock.terminal.send(msg.inspect)
+				sock.terminal.send(msg.backtrace.inspect)
+			end
     else
       str.chomp!
 			if str != ""

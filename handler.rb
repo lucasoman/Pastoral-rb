@@ -156,7 +156,8 @@ class Handler < Framework
       sock.user.sitting = true
       tokens.shift
       sock.user.sitmsg = tokens.join(' ')
-      broadcast sock.user.name+" sits"+(sock.user.sitmsg != '' ? " "+sock.user.sitmsg : '')+".", sock
+      broadcast sock.user.name+" sits"+(sock.user.sitmsg != '' ? " "+sock.user.sitmsg : '')+".", sock, false
+			sock.terminal.send "You sit."
     end
   end#}}}
   def stand#{{{
@@ -189,10 +190,15 @@ class Handler < Framework
       params[t[0]] = t[1]
     end
     item = Item.new
-    item.name = params['name']
-    item.description = params['description']
+		item.name = params['name'] unless params['name'].nil?
+    item.description = params['description'] unless params['name'].nil?
+		if !@sock.user.id.nil?
+			item.creatorId = @sock.user.id
+			item.save
+			item.setOwnerId @sock.user.id
+		end
     @sock.user.inventory.addItem item
-    broadcast @sock.user.name+" clasps his hands together and, with much concentration, slowly opens them to reveal "+item.name+".", @sock
+		broadcast @sock.user.name+" clasps his hands together and, with much concentration, slowly opens them to reveal "+item.name+".", @sock
   end#}}}
   def give#{{{
     if @tokens[2].nil?
@@ -209,8 +215,9 @@ class Handler < Framework
       @sock.terminal.send "Your companion by that name is nowhere in sight."
     else
       broadcast @sock.user.name+" gives "+giveWhat.name+" to "+giveTo.user.name, @sock
+			giveWhat.setOwnerId giveTo.user.id
       giveTo.user.inventory.addItem giveWhat
-      @sock.user.inventory.delItem(giveWhat)
+      @sock.user.inventory.delItem giveWhat
     end
   end#}}}
   def animal#{{{

@@ -26,7 +26,7 @@ load 'animals/finch.rb'
 load 'synonyms.rb'
 
 $myDB = Mysql.real_connect("localhost", "root", "sthlkj12", "pastoral")
-$myServer = PastoralServer.new(1337)
+$myServer = PastoralServer.new('192.168.0.111',5151)
 # animals
 3.times do
   $myServer.addAnimal(Bird.new)

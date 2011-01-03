@@ -15,7 +15,9 @@ synonyms = {
   :leave => :quit,
   :disconnect => :quit,
   :exit => :quit,
-  :logout => :quit
+  :logout => :quit,
+	:i => :inventory,
+	:inv => :inventory
   }
 synonyms.each {|s,m| Handler.addSynonym(m,s) }
 
