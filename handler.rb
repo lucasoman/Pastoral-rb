@@ -7,6 +7,7 @@ class Handler < Framework
     @tokens = tokens
     @allSocks = allSocks
     @allNames = []
+		@permitted = [:register,:identify,:help]
   end#}}}
 
   def go#{{{
@@ -48,6 +49,7 @@ class Handler < Framework
     cmds = [
       'go <direction>',
       'help',
+			'register <name> <password>',
       'identify <name> <password>',
       'inventory',
       'look','me <third-person action>',
@@ -77,6 +79,13 @@ class Handler < Framework
       @sock.user.name = @tokens[1]
     end
   end#}}}
+	def register#{{{
+		if @tokens[2].nil?
+			@sock.terminal.send "You must request a name and share a secret."
+		else
+			@sock.user.register @tokens[1], @tokens[2]
+		end
+	end#}}}
   def identify#{{{
     if @tokens[2].nil?
       @sock.terminal.send "The world cannot recognize you without more information!"
@@ -235,6 +244,9 @@ class Handler < Framework
     return eval(synonym.to_s) unless synonym.nil?
 		notCommand
   end#}}}
+	def permitted(method)#{{{
+		return (!@sock.user.id.nil? || @permitted.include?(method))
+	end#}}}
 
 private
 

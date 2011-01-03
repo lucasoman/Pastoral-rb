@@ -76,7 +76,11 @@ class PastoralServer < Framework
       tokens = str.sub($cmdChar,'').split(' ')
       handler = Handler.new(sock,tokens,@allSocks)
 			begin
-				handler.send(tokens[0].to_sym)
+				if handler.permitted(tokens[0].to_sym)
+					handler.send(tokens[0].to_sym)
+				else
+					sock.terminal.send('The world does not recognize you. Please tell us who you are.')
+				end
 			rescue Exception=>msg
 				sock.terminal.send('Sorry, there was a problem executing that command.')
 				sock.terminal.send(msg.inspect)

@@ -1,0 +1,16 @@
+- TO TEST
+- TO CODE
+	- !drop
+	- !pickup
+	- !destroy
+	- !clone
+	- locking cubes/key items
+	- (sparse) spawn points
+	- dropped item eater?
+	- abbreviated dirns
+	- API for stats
+	- indoor/outdoor flag for cubes
+	- improved animal movement
+	- animal flocking?
+	x mandatory register/login
+- TO FIX

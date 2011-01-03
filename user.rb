@@ -30,6 +30,17 @@ class User < Framework
       return true
     end
   end#}}}
+	def register(user,pass)#{{{
+		res = $myDB.query("select id from users where username='"+$myDB.escape_string(user)+"'")
+		row = res.fetch_hash
+		if !row.nil?
+			@sock.terminal.send "Another has already been granted that name."
+			return false
+		else
+			$myDB.query("insert into users set username='"+$myDB.escape_string(user)+"',password=md5('"+$myDB.escape_string(pass)+"')")
+			@sock.terminal.send "Granted. You now own the name '"+user+"'"
+		end
+	end#}}}
   def sameCubeAs(cube)#{{{
     (@cube.x == cube.x && @cube.y == cube.y && @cube.z == cube.z)
   end#}}}
