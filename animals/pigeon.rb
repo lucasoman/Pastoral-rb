@@ -1,10 +1,11 @@
 class Pigeon < Animal
   def setStartActions
     @startActions.push "!name a_pigeon"
+		@rate = 80
   end
 
   def shouldAct?
-    return (rand(80) == 0)
+    return (rand(getRate) == 0)
   end
 
   def getAction

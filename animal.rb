@@ -1,5 +1,5 @@
 class Animal
-  attr_accessor :terminal, :user, :sockType, :startActions
+  attr_accessor :terminal, :user, :sockType, :startActions, :allowedCubes, :rate
   def setStartActions#{{{
 =begin
   Override this method to set commands that should be
@@ -35,6 +35,8 @@ class Animal
   def initialize(x=nil,y=nil,z=nil)#{{{
     @startActions = ['!animal 4n1m4l']
     @startActions.push '!transport '+x.to_s+' '+y.to_s+' '+z.to_s if !z.nil?
+		@allowedCubes = []
+		@rate = 100
     @terminal = Terminal.new(self)
     @user = User.new(self)
     @sockType = SockTypeAnim
@@ -44,28 +46,39 @@ class Animal
     return getAction if shouldAct?
   end#}}}
   def write(str)#{{{
-    if str.match('^~')
-      tokens = str.split(' ')
-      tokens.shift
-      tokens = tokens.join(' ').split(':')
-      case tokens[0]
-        when 'users'
-          @users = tokens[1].split(',')
-        when 'gotos'
-          @gotos = tokens[1].split(',')
-        when 'seetos'
-          @seetos = tokens[1].split(',')
-        when 'coords'
-          coords = tokens[1].split(',')
-          @x = coords[0]
-          @y = coords[1]
-          @z = coords[2]
-        when 'description'
-          @description = tokens[1]
-      end
-    end
+		str.split("\n").each do |line|
+			if line.match('^~ ')
+				tokens = line.strip.split(' ')
+				tokens.shift
+				tokens = tokens.join(' ').split(':')
+				case tokens[0]
+					when 'users'
+						@users = tokens[1].split(',') if !tokens[1].nil?
+					when 'gotos'
+						@gotos = tokens[1].split(',') if !tokens[1].nil?
+					when 'seetos'
+						@seetos = tokens[1].split(',') if !tokens[1].nil?
+					when 'coords'
+						coords = tokens[1].split(',')
+						@x = coords[0]
+						@y = coords[1]
+						@z = coords[2]
+					when 'description'
+						@description = tokens[1]
+				end
+			end
+		end
   end#}}}
   def describeCube#{{{
     return user.cube.describeCubeAnimal
   end#}}}
+	def pickAllowedDirection#{{{
+		while true
+			dir = @gotos[rand(@gotos.size)]
+			return dir if @allowedCubes.include? Direction.dirnToCoords(@x.to_i,@y.to_i,@z.to_i,dir)
+		end
+	end#}}}
+	def getRate#{{{
+		return (@rate * $animalActivityRate).to_i
+	end#}}}
 end

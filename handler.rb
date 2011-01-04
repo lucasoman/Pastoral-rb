@@ -13,21 +13,25 @@ class Handler < Framework
   def go#{{{
     if @tokens[1].nil?
       @sock.terminal.send "You have control of your fate in the world. Where do you want to go?" if @sock.sockType == SockTypeUser
-    elsif !%w{north south east west up down}.include?(@tokens[1])
+			return
+		end
+
+		dir = @tokens[1].downcase
+    if !%w{north south east west up down}.include?(dir)
       @sock.terminal.send "That may be the road less traveled by, but choosing a recognizable direction will make all the difference." if @sock.sockType == SockTypeUser
     else
-			if !@sock.user.cube.goToDirn?(@tokens[1])
+			if !@sock.user.cube.goToDirn?(dir)
 				@sock.terminal.send "You can't go that way." if @sock.sockType == SockTypeUser
 			else
-				cube = @sock.user.cube.changeCube(@tokens[1])
+				cube = @sock.user.cube.changeCube(dir)
 				if cube.exists?
-					case @tokens[1]
+					case dir
 						when 'north','south','east','west'
-							leaveBroadcastMsg = " has ventured off toward the "+@tokens[1]+"."
-							arriveBroadcastMsg = " has joined us from the "+Direction.oppositeDirn(@tokens[1])+"."
+							leaveBroadcastMsg = " has ventured off toward the "+dir+"."
+							arriveBroadcastMsg = " has joined us from the "+Direction.oppositeDirn(dir)+"."
 						when 'up','down'
-							leaveBroadcastMsg = " has ventured "+@tokens[1]+"."
-							arriveBroadcastMsg = " has joined us from "+(@tokens[1] == "up" ? "below" : "above")
+							leaveBroadcastMsg = " has ventured "+dir+"."
+							arriveBroadcastMsg = " has joined us from "+(dir == "up" ? "below" : "above")
 					end
 					broadcast @sock.user.name+leaveBroadcastMsg, @sock, false
 					@sock.user.cube = cube
@@ -74,7 +78,9 @@ class Handler < Framework
     elsif nameUsed?(@tokens[1])
       @sock.terminal.send "You may not assume the identity of another."
     else
-      @tokens[1] = @tokens[1].sub('_',' ') if @sock.sockType == SockTypeAnim
+			while @sock.sockType == SockTypeAnim && !@tokens[1].index('_').nil?
+				@tokens[1].sub!('_',' ')
+			end
       broadcast @sock.user.name+" is now dubbed "+@tokens[1], @sock
       @sock.user.name = @tokens[1]
     end
@@ -239,13 +245,18 @@ class Handler < Framework
       @sock.terminal.send @sock.describeCube
     end
   end#}}}
+	def animact#{{{
+		if @sock.user.fm.to_i == 1
+			$animalActivityRate = @tokens[1].to_f
+		end
+	end#}}}
   def method_missing(method)#{{{
     synonym = findSynonym method
     return eval(synonym.to_s) unless synonym.nil?
 		notCommand
   end#}}}
 	def permitted(method)#{{{
-		return (!@sock.user.id.nil? || @permitted.include?(method))
+		return (!@sock.user.id.nil? || @permitted.include?(method) || @sock.sockType == SockTypeAnim)
 	end#}}}
 
 private

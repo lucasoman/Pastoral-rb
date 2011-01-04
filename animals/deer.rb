@@ -1,17 +1,22 @@
 class Deer < Animal
   def setStartActions
-    @startActions.push "!name a_deer"
+    @startActions.push "!name "+%w{a_fawn a_doe a_stag}[rand(3)]
+		@directions = %w{north south east west}
+		2.times do
+			@directions.push @directions[rand(4)]
+		end
+		@rate = 40
   end
 
   def shouldAct?
-    return (rand(50) == 0)
+    return (rand(getRate) == 0)
   end
 
   def getAction
     cmds = ["!me grazes silently","!look"]
     num = rand(cmds.size + 1)
     if num == cmds.size
-      return "!go "+%w{north south east west}[rand(4)]
+      return "!go "+@directions[rand(@directions.size)]
     else
       return cmds[num]
     end
