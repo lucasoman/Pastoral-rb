@@ -96,6 +96,12 @@ class Cube < Framework
     desc += '~ gotos:'+describeGotos(true)
     desc
   end#}}}
+	def describeStats
+		str = ''
+		str += '# users:'+describeUsersPresent(true)+"\n"
+		str += '# animals:'+describeAnimalsPresent
+		str
+	end
   def Cube.zap(x,y,z,params)#{{{
     newCube = Cube.new(x,y,z)
     if newCube.exists?
@@ -217,4 +223,8 @@ class Cube < Framework
     return str if !animal
     return usrs.join(',') if animal
   end#}}}
+	def describeAnimalsPresent#{{{
+		animals = $myServer.getAnimalsPresent(self)
+		animals.collect{|a| a.name}.join(',')
+	end#}}}
 end

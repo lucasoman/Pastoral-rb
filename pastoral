@@ -27,6 +27,7 @@ load 'animals/finch.rb'
 load 'animals/seagull.rb'
 load 'animals/wave.rb'
 load 'animals/crab.rb'
+load 'animals/stat.rb'
 load 'synonyms.rb'
 
 $myDB = Mysql.real_connect("localhost", "root", "sthlkj12", "pastoral")

@@ -239,7 +239,7 @@ class Handler < Framework
     @sock.sockType = SockTypeAnim if @tokens[1] == "4n1m4l"
   end#}}}
   def transport#{{{
-    if @sock.sockType == SockTypeAnim || @sock.user.fm.to_i == 1
+    if @sock.user.bot? || @sock.user.fm.to_i == 1
       cube = Cube.new(@tokens[1].to_i,@tokens[2].to_i,@tokens[3].to_i)
       @sock.user.cube = cube if cube.exists?
       @sock.terminal.send @sock.describeCube
@@ -249,6 +249,20 @@ class Handler < Framework
 		if @sock.user.fm.to_i == 1
 			$animalActivityRate = @tokens[1].to_f
 		end
+	end#}}}
+	def stat#{{{
+    if @sock.user.bot? || @sock.user.fm.to_i == 1
+			x = @tokens[1]
+			y = @tokens[2]
+			z = @tokens[3]
+			cube = Cube.new(x.to_i,y.to_i,z.to_i)
+			if cube.exists?
+				@sock.terminal.send cube.describeStats
+			end
+		end
+	end#}}}
+	def gostat#{{{
+		$stats.rate = 10000 if @sock.user.fm.to_i == 1
 	end#}}}
   def method_missing(method)#{{{
     synonym = findSynonym method

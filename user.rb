@@ -44,4 +44,7 @@ class User < Framework
   def sameCubeAs(cube)#{{{
     (@cube.x == cube.x && @cube.y == cube.y && @cube.z == cube.z)
   end#}}}
+	def bot?#{{{
+		return @sock.sockType == SockTypeAnim
+	end#}}}
 end

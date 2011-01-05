@@ -1,3 +1,8 @@
+# stats
+$stats = Stat.new
+$myServer.addAnimal($stats)
+
+
 # global
 3.times do
   $myServer.addAnimal(Bird.new)

@@ -54,6 +54,13 @@ class PastoralServer < Framework
     end
     users
   end#}}}
+	def getAnimalsPresent(cube)#{{{
+		animals = []
+		@allAnimals.each do |a|
+			animals.push a.user if a.user.sameCubeAs(cube)
+		end
+		animals
+	end#}}}
   def addAnimal(animal)#{{{
     @allAnimals.push animal
   end#}}}
